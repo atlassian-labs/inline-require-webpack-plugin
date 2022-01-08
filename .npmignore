@@ -1,0 +1,24 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editors
+.idea
+.vscode
+.history
+*.iml
+.vs
+jsconfig.json
+*.swp
+
+# Dependency directories
+node_modules
+.yalc
+yalc.lock
+
+# Optional npm cache directory
+.npm
+
+# OS hidden files
+.DS_Store

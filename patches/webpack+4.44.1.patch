@@ -1,0 +1,40 @@
+diff --git a/node_modules/webpack/lib/optimize/ConcatenatedModule.js b/node_modules/webpack/lib/optimize/ConcatenatedModule.js
+index df4d216..9331a83 100644
+--- a/node_modules/webpack/lib/optimize/ConcatenatedModule.js
++++ b/node_modules/webpack/lib/optimize/ConcatenatedModule.js
+@@ -1289,8 +1289,10 @@ class ConcatenatedModule extends Module {
+ 
+ 	findNewName(oldName, usedNamed1, usedNamed2, extraInfo) {
+ 		let name = oldName;
++		const suffix = '__WEBPACK_CONCATENATED_MODULE__'
+ 
+ 		if (name === "__WEBPACK_MODULE_DEFAULT_EXPORT__") name = "";
++		name = name.replace(suffix, '');
+ 
+ 		// Remove uncool stuff
+ 		extraInfo = extraInfo.replace(
+@@ -1301,7 +1303,7 @@ class ConcatenatedModule extends Module {
+ 		const splittedInfo = extraInfo.split("/");
+ 		while (splittedInfo.length) {
+ 			name = splittedInfo.pop() + (name ? "_" + name : "");
+-			const nameIdent = Template.toIdentifier(name);
++			const nameIdent = Template.toIdentifier(name) + suffix;
+ 			if (
+ 				!usedNamed1.has(nameIdent) &&
+ 				(!usedNamed2 || !usedNamed2.has(nameIdent))
+@@ -1310,13 +1312,13 @@ class ConcatenatedModule extends Module {
+ 		}
+ 
+ 		let i = 0;
+-		let nameWithNumber = Template.toIdentifier(`${name}_${i}`);
++		let nameWithNumber = Template.toIdentifier(`${name}_${i}`) + suffix;
+ 		while (
+ 			usedNamed1.has(nameWithNumber) ||
+ 			(usedNamed2 && usedNamed2.has(nameWithNumber))
+ 		) {
+ 			i++;
+-			nameWithNumber = Template.toIdentifier(`${name}_${i}`);
++			nameWithNumber = Template.toIdentifier(`${name}_${i}`) + suffix;
+ 		}
+ 		return nameWithNumber;
+ 	}
