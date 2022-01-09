@@ -10,9 +10,11 @@ module.exports = (fixturePath) => ({
   externals: {},
   output: {
     path: rel([fixturePath, 'build']),
-    futureEmitAssets: false,
   },
   optimization: {
     moduleIds: 'named',
+    runtimeChunk: {
+      name: 'manifest',
+    },
   },
 });

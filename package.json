@@ -20,18 +20,17 @@
   "homepage": "https://github.com/atlassian-labs/inline-require-webpack-plugin#readme",
   "scripts": {
     "test": "jest",
-    "test:webpack-util": "webpack",
     "type-check": "tsc --noEmit",
-    "type-check:watch": "npm run type-check -- --watch",
     "build": "rm -rf build && npm run build:types && npm run build:js",
     "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
     "build:js": "babel src --out-dir build --extensions \".ts,.tsx,.js\" --ignore src/__tests__ --source-maps inline",
     "lint": "eslint --ext .ts,.tsx,.js src/",
-    "prepare": "npm run build",
-    "postinstall": "patch-package"
+    "prepare": "npm run build"
   },
   "jest": {
-    "modulePathIgnorePatterns": ["build"],
+    "modulePathIgnorePatterns": [
+      "build"
+    ],
     "roots": [
       "src"
     ],
@@ -39,8 +38,8 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "webpack": "^4.41.30 | ^5.24.0",
-    "webpack-sources": "^1.4.3 | ^2.0.0 | ^3.0.0"
+    "webpack": "^4.41.1 || ^5.24.0",
+    "webpack-sources": "^1.4.3 || ^2.0.0 || ^3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -61,12 +60,11 @@
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.4.7",
-    "patch-package": "^6.4.7",
     "prettier": "^2.0.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.5.4",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-sources": "^1.4.3"
+    "webpack-cli": "^4.9.1",
+    "webpack-v4": "npm:webpack@~4.41.1",
+    "webpack-v5": "npm:webpack@~5.24.0"
   }
 }

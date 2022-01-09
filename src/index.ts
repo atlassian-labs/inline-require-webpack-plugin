@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
-import { Compiler } from 'webpack';
-import { RawSource, SourceMapSource } from 'webpack-sources';
+import type { Compiler } from 'webpack';
+import { RawSource, SourceMapSource, Source } from 'webpack-sources';
 
 const PLUGIN_NAME = 'InlineRequireWebpackPlugin';
 
@@ -69,7 +69,7 @@ class InlineRequireWebpackPlugin {
             // either the dependency has explicit sideEffect
             // or we assume only local js/ts modules being sideEffect free
             const isFree =
-              m.factoryMeta.sideEffectFree != null
+              m.factoryMeta && m.factoryMeta.sideEffectFree != null
                 ? m.factoryMeta.sideEffectFree
                 : !ident.includes('node_modules') && /\.[jt]sx?$/.test(ident);
 
@@ -78,61 +78,81 @@ class InlineRequireWebpackPlugin {
         }
       });
 
-      compilation.hooks.optimizeChunkAssets.tapPromise(PLUGIN_NAME, async (chunks) => {
-        for (const chunk of chunks) {
-          for (const file of chunk.files) {
-            compilation.updateAsset(file, (old) => {
-              const sourceAndMap = old.sourceAndMap
-                ? old.sourceAndMap()
-                : {
-                    source: old.source(),
-                    map: typeof old.map === 'function' ? old.map() : null,
-                  };
+      const manipulateAsset = (old: Source, file: string) => {
+        const sourceAndMap = old.sourceAndMap
+          ? old.sourceAndMap()
+          : {
+              source: old.source(),
+              map: typeof old.map === 'function' ? old.map() : null,
+            };
 
-              const src = toString(sourceAndMap.source)
-                .split(webpackModuleHeader)
-                .map((v) => {
-                  // Collect require variables
-                  const requireVariables = collectRequires(v);
-                  let output = v;
+        const src = toString(sourceAndMap.source)
+          .split(webpackModuleHeader)
+          .map((v) => {
+            // Collect require variables
+            const requireVariables = collectRequires(v);
+            let output = v;
 
-                  // Replace variable names.
-                  for (const [
-                    variableName,
-                    { requireExpression, isSideEffectFree },
-                  ] of requireVariables.entries()) {
-                    // eslint-disable-next-line no-continue
-                    if (!isSideEffectFree) continue;
+            // Replace variable names.
+            for (const [
+              variableName,
+              { requireExpression, isSideEffectFree },
+            ] of requireVariables.entries()) {
+              // eslint-disable-next-line no-continue
+              if (!isSideEffectFree) continue;
 
-                    // strip top level var declarations
-                    const declarationlessOutput = output.replace(
-                      new RegExp(`var ${variableName}[^\\w]([^;]+);`),
-                      (m, p0) => `// (inlined) ${(p0.match(/"([^"]+)/) || [])[1]}`
-                    );
+              // strip top level var declarations
+              const declarationlessOutput = output.replace(
+                new RegExp(`var ${variableName}[^\\w]([^;]+);`),
+                (m, p0) => `// (inlined) ${(p0.match(/"([^"]+)/) || [])[1]}`
+              );
 
-                    // replace inline variable references with require expression
-                    const reflessOutput = declarationlessOutput.replace(
-                      new RegExp(`([^\\w])${variableName}([^\\w])`, 'g'),
-                      `$1(${requireExpression})$2`
-                    );
+              // replace inline variable references with require expression
+              const reflessOutput = declarationlessOutput.replace(
+                new RegExp(`([^\\w])${variableName}([^\\w])`, 'g'),
+                `$1(${requireExpression})$2`
+              );
 
-                    if (reflessOutput !== declarationlessOutput) {
-                      // import var is being used somewhere, confirm replacements
-                      output = reflessOutput;
-                    }
-                  }
+              if (reflessOutput !== declarationlessOutput) {
+                // import var is being used somewhere, confirm replacements
+                output = reflessOutput;
+              }
+            }
 
-                  return output;
-                })
-                .join(webpackModuleHeader);
+            return output;
+          })
+          .join(webpackModuleHeader);
 
-              return sourceAndMap.map
-                ? new SourceMapSource(src, file, sourceAndMap.map)
-                : new RawSource(src);
+        return sourceAndMap.map
+          ? new SourceMapSource(src, file, sourceAndMap.map)
+          : new RawSource(src);
+      };
+
+      // Webpack v5 hook (as optimizeChunkAssets is deprecated)
+      if ('processAssets' in compilation.hooks) {
+        // @ts-ignore v5 only hook
+        compilation.hooks.processAssets.tap(
+          {
+            name: PLUGIN_NAME,
+            // @ts-ignore v5 only const
+            stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_COUNT,
+          },
+          (assets: Record<string, Source>) => {
+            Object.keys(assets).forEach((file) => {
+              compilation.updateAsset(file, (old) => manipulateAsset(old, file));
             });
           }
-        }
-      });
+        );
+      } else {
+        // Webpack v4 hook
+        compilation.hooks.optimizeChunkAssets.tap(PLUGIN_NAME, (chunks) => {
+          for (const chunk of chunks) {
+            for (const file of chunk.files) {
+              compilation.updateAsset(file, (old) => manipulateAsset(old, file));
+            }
+          }
+        });
+      }
     });
   }
 }

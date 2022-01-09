@@ -1,0 +1,199 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should inline commonjs modules imports at call site 1`] = `
+"
+\\"use strict\\";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ // (inlined) ./src/__tests__/commonjs-import/foo.js
+/* harmony import */ var _foo__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n((__webpack_require__(\\"./src/__tests__/commonjs-import/foo.js\\")));
+(() => {
+  // Expected inline import:
+  const foo = Object((__webpack_require__(\\"./src/__tests__/commonjs-import/foo.js\\"))[\\"Foo\\"])();
+  return foo;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should inline concatenated modules 1`] = `
+"
+\\"use strict\\";
+__webpack_require__.r(__webpack_exports__);
+// EXTERNAL MODULE: ./src/__tests__/concatenated-import/bar.js
+// (inlined) ./src/__tests__/concatenated-import/bar.js
+// CONCATENATED MODULE: ./src/__tests__/concatenated-import/foo.js
+function Foo() {
+  // Expected inline import:
+  return (__webpack_require__(\\"./src/__tests__/concatenated-import/bar.js\\"))[\\"BAR\\"];
+}
+/* harmony default export */ var foo__WEBPACK_CONCATENATED_MODULE__ = (Foo);
+// CONCATENATED MODULE: ./src/__tests__/concatenated-import/entry.js
+(() => {
+  // plain function call
+  const foo = foo__WEBPACK_CONCATENATED_MODULE__();
+  return foo;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should inline dependency imports at call site if side effects false 1`] = `
+"
+\\"use strict\\";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ // (inlined) ./node_modules/eslint-utils/index.mjs
+(() => {
+  // Expected inline import:
+  const foo = (__webpack_require__(\\"./node_modules/eslint-utils/index.mjs\\"))[/* ESM */ \\"a\\"];
+  return foo;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should inline es modules imports at call site 1`] = `
+"
+\\"use strict\\";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ // (inlined) ./src/__tests__/es-import/foo.js
+/* harmony import */ // (inlined) ./src/__tests__/es-import/bar.js
+(() => {
+  // Expected inline import:
+  const foo = Object((__webpack_require__(\\"./src/__tests__/es-import/foo.js\\"))[/* default */ \\"a\\"])();
+  // Expected inline import:
+  const bar = new (__webpack_require__(\\"./src/__tests__/es-import/bar.js\\"))[/* Bar */ \\"b\\"]();
+  return foo + bar + (__webpack_require__(\\"./src/__tests__/es-import/bar.js\\"))[/* BAZ */ \\"a\\"];
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should inline es modules imports at call site when hashed 1`] = `
+"
+\\"use strict\\";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ // (inlined) qJZH
+/* harmony import */ // (inlined) TQxB
+(() => {
+  // Expected inline import:
+  const foo = Object((__webpack_require__(\\"qJZH\\"))[/* default */ \\"a\\"])();
+  // Expected inline import:
+  const bar = new (__webpack_require__(\\"TQxB\\"))[/* Bar */ \\"b\\"]();
+  return foo + bar + (__webpack_require__(\\"TQxB\\"))[/* BAZ */ \\"a\\"];
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should leave side effects es modules imports as they are 1`] = `
+"
+\\"use strict\\";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _foo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(\\"./src/__tests__/side-effect-import/foo.js\\");
+// Expected kept import
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v4.44.1 should preserve dependency imports at call site if potential side effects 1`] = `
+"
+\\"use strict\\";
+/* harmony import */ var querystring__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(\\"./node_modules/querystring-es3/index.js\\");
+/* harmony import */ var querystring__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(querystring__WEBPACK_IMPORTED_MODULE_0__);
+function Foo() {
+  return Object(querystring__WEBPACK_IMPORTED_MODULE_0__[\\"encode\\"])();
+}
+/* harmony default export */ __webpack_exports__[\\"a\\"] = (Foo);
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should inline commonjs modules imports at call site 1`] = `
+"
+\\"use strict\\";
+/* harmony import */ // (inlined) ./src/__tests__/commonjs-import/foo.js
+/* harmony import */ var _foo__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n((__webpack_require__(\\"./src/__tests__/commonjs-import/foo.js\\")));
+(() => {
+  // Expected inline import:
+  const foo = (0,(__webpack_require__(\\"./src/__tests__/commonjs-import/foo.js\\")).Foo)();
+  return foo;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should inline concatenated modules 1`] = `
+"
+\\"use strict\\";
+// EXTERNAL MODULE: ./src/__tests__/concatenated-import/bar.js
+// (inlined) ./src/__tests__/concatenated-import/bar.js
+;// CONCATENATED MODULE: ./src/__tests__/concatenated-import/foo.js
+function Foo() {
+  // Expected inline import:
+  return (__webpack_require__(\\"./src/__tests__/concatenated-import/bar.js\\"))/* BAR */.u;
+}
+/* harmony default export */ const foo__WEBPACK_CONCATENATED_MODULE__ = (Foo);
+;// CONCATENATED MODULE: ./src/__tests__/concatenated-import/entry.js
+(() => {
+  // plain function call
+  const foo = foo__WEBPACK_CONCATENATED_MODULE__();
+  return foo;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should inline dependency imports at call site if side effects false 1`] = `
+"
+\\"use strict\\";
+/* harmony import */ // (inlined) ./node_modules/eslint-utils/index.mjs
+(() => {
+  // Expected inline import:
+  const foo = (__webpack_require__(\\"./node_modules/eslint-utils/index.mjs\\"))/* .ESM */ .q8;
+  return foo;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should inline es modules imports at call site 1`] = `
+"
+\\"use strict\\";
+/* harmony import */ // (inlined) ./src/__tests__/es-import/foo.js
+/* harmony import */ // (inlined) ./src/__tests__/es-import/bar.js
+(() => {
+  // Expected inline import:
+  const foo = (0,(__webpack_require__(\\"./src/__tests__/es-import/foo.js\\"))/* .default */ .Z)();
+  // Expected inline import:
+  const bar = new (__webpack_require__(\\"./src/__tests__/es-import/bar.js\\"))/* .Bar */ .$();
+  return foo + bar + (__webpack_require__(\\"./src/__tests__/es-import/bar.js\\"))/* .BAZ */ .t;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should inline es modules imports at call site when hashed 1`] = `
+"
+\\"use strict\\";
+/* harmony import */ // (inlined) qJZH
+/* harmony import */ // (inlined) TQxB
+(() => {
+  // Expected inline import:
+  const foo = (0,(__webpack_require__(\\"qJZH\\"))/* .default */ .Z)();
+  // Expected inline import:
+  const bar = new (__webpack_require__(\\"TQxB\\"))/* .Bar */ .$();
+  return foo + bar + (__webpack_require__(\\"TQxB\\"))/* .BAZ */ .t;
+})();
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should leave side effects es modules imports as they are 1`] = `
+"
+\\"use strict\\";
+/* harmony import */ var _foo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(\\"./src/__tests__/side-effect-import/foo.js\\");
+// Expected kept import
+"
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should preserve dependency imports at call site if potential side effects 1`] = `
+"
+\\"use strict\\";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   \\"Z\\": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var querystring__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(\\"./node_modules/querystring/index.js\\");
+function Foo() {
+  return (0,querystring__WEBPACK_IMPORTED_MODULE_0__/* .encode */ .c)();
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Foo);
+"
+`;
