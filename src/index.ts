@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
-import type { Compiler } from 'webpack';
+import type { Compiler, Module } from 'webpack';
+import webpack from 'webpack';
 import { RawSource, SourceMapSource, Source } from 'webpack-sources';
 
 const PLUGIN_NAME = 'InlineRequireWebpackPlugin';
@@ -50,18 +51,26 @@ function toString(input: string | ArrayBuffer) {
     : String.fromCharCode.apply(null, new Uint16Array(input) as any);
 }
 
-class InlineRequireWebpackPlugin {
-  private readonly options: {};
+export interface InlineRequireWebpackPluginOptions {
+  sourceMap?: boolean;
+}
 
-  constructor(options = {}) {
-    this.options = options;
+class InlineRequireWebpackPlugin {
+  private readonly options: InlineRequireWebpackPluginOptions;
+
+  constructor(options: Partial<InlineRequireWebpackPluginOptions> = {}) {
+    this.options = { ...options };
   }
 
   apply(compiler: Compiler) {
+    const sourceMap = this.options.sourceMap ?? !!compiler.options.devtool;
+
     compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
-      compilation.hooks.afterOptimizeModuleIds.tap(PLUGIN_NAME, (modules) => {
+      function collectSideEffects(modules: webpack.compilation.Module[]) {
         for (const m of modules) {
-          if (m.id != null && !sideEffectFree.has(m.id) && 'libIdent' in m) {
+          // @ts-ignore v5 only id getter
+          const id = compilation.chunkGraph ? compilation.chunkGraph.getModuleId(m) : m.id;
+          if (id != null && !sideEffectFree.has(id) && 'libIdent' in m) {
             const ident: string = (m as any).libIdent({
               context: compiler.options.context,
             });
@@ -73,18 +82,21 @@ class InlineRequireWebpackPlugin {
                 ? m.factoryMeta.sideEffectFree
                 : !ident.includes('node_modules') && /\.[jt]sx?$/.test(ident);
 
-            sideEffectFree.set(m.id, isFree);
+            sideEffectFree.set(id, isFree);
           }
         }
-      });
+      }
 
-      const manipulateAsset = (old: Source, file: string) => {
-        const sourceAndMap = old.sourceAndMap
-          ? old.sourceAndMap()
-          : {
-              source: old.source(),
-              map: typeof old.map === 'function' ? old.map() : null,
-            };
+      compilation.hooks.afterOptimizeModuleIds.tap(PLUGIN_NAME, collectSideEffects);
+
+      function manipulateAsset(old: Source, file: string) {
+        const sourceAndMap =
+          sourceMap && old.sourceAndMap
+            ? old.sourceAndMap()
+            : {
+                source: old.source(),
+                map: sourceMap && typeof old.map === 'function' ? old.map() : null,
+              };
 
         const src = toString(sourceAndMap.source)
           .split(webpackModuleHeader)
@@ -126,7 +138,7 @@ class InlineRequireWebpackPlugin {
         return sourceAndMap.map
           ? new SourceMapSource(src, file, sourceAndMap.map)
           : new RawSource(src);
-      };
+      }
 
       // Webpack v5 hook (as optimizeChunkAssets is deprecated)
       if ('processAssets' in compilation.hooks) {

@@ -1,4 +1,9 @@
 import path from 'path';
+import { readFile } from 'fs';
+import { promisify } from 'util';
+// @ts-ignore
+import validate from 'sourcemap-validator';
+
 import {
   webpackCompile,
   getModuleOutput,
@@ -21,44 +26,51 @@ describe('InlineRequirePlugin', () => {
 
     it('should inline es modules imports at call site', async () => {
       const fixturePath = path.join(__dirname, 'es-import');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'entry.js')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'entry.js')).toMatchSnapshot();
     });
 
     it('should inline es modules imports at call site when hashed', async () => {
       const fixturePath = path.join(__dirname, 'es-import-hashed');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'ZieR')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'ZieR')).toMatchSnapshot();
     });
 
     it('should leave side effects es modules imports as they are', async () => {
       const fixturePath = path.join(__dirname, 'side-effect-import');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'entry.js')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'entry.js')).toMatchSnapshot();
     });
 
     it('should inline commonjs modules imports at call site', async () => {
       const fixturePath = path.join(__dirname, 'commonjs-import');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'entry.js')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'entry.js')).toMatchSnapshot();
     });
 
     it('should inline dependency imports at call site if side effects false', async () => {
       const fixturePath = path.join(__dirname, 'dependency-import');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'entry.js')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'entry.js')).toMatchSnapshot();
     });
 
     it('should preserve dependency imports at call site if potential side effects', async () => {
       const fixturePath = path.join(__dirname, 'side-effect-unk-import');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'foo.js')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'foo.js')).toMatchSnapshot();
     });
 
     it('should inline concatenated modules', async () => {
       const fixturePath = path.join(__dirname, 'concatenated-import');
-      const content = await webpackCompile(fixturePath);
-      expect(getModuleOutput(content, 'entry.js')).toMatchSnapshot();
+      const { source } = await webpackCompile(fixturePath);
+      expect(getModuleOutput(source, 'entry.js')).toMatchSnapshot();
+    });
+
+    it('should generate valid source maps', async () => {
+      const fixturePath = path.join(__dirname, 'source-maps');
+      const { source, map = '' } = await webpackCompile(fixturePath);
+      expect(JSON.parse(map)).toMatchSnapshot();
+      expect(() => validate(source, map)).not.toThrow();
     });
   });
 });

@@ -66,9 +66,15 @@ export async function webpackCompile(fixturePath: string) {
   ]);
 
   // read the main bundle
-  const output = await promisify(readFile)(`${fixturePath}/build/main.js`, 'utf8');
+  const source = await promisify(readFile)(`${fixturePath}/build/main.js`, 'utf8');
+  let map;
+  try {
+    map = await promisify(readFile)(`${fixturePath}/build/main.js.map`, 'utf8');
+  } catch (e) {
+    // ignore
+  }
 
   // after reading, delete the build folder
   await removeBuildDir(fixturePath);
-  return output;
+  return { source, map };
 }

@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`InlineRequirePlugin with webpack v4.44.1 should generate valid source maps 1`] = `
+Object {
+  "file": "main.js",
+  "mappings": "oGAIS,e,qBCJTA,EAAQC,IAAM,K",
+  "names": Array [
+    "exports",
+    "BAR",
+  ],
+  "sourceRoot": "",
+  "sources": Array [
+    "webpack:///./src/__tests__/source-maps/foo.js",
+    "webpack:///./src/__tests__/source-maps/bar.js",
+  ],
+  "sourcesContent": Array [
+    "import { BAR } from './bar';
+
+function Foo() {
+  // Expected inline import:
+  return BAR;
+}
+
+export default Foo;
+",
+    "exports.BAR = '';
+",
+  ],
+  "version": 3,
+}
+`;
+
 exports[`InlineRequirePlugin with webpack v4.44.1 should inline commonjs modules imports at call site 1`] = `
 "
 \\"use strict\\";
@@ -99,6 +129,35 @@ function Foo() {
 }
 /* harmony default export */ __webpack_exports__[\\"a\\"] = (Foo);
 "
+`;
+
+exports[`InlineRequirePlugin with webpack v5.24.0 should generate valid source maps 1`] = `
+Object {
+  "file": "main.js",
+  "mappings": "gIAAAA,EAAQ,EAAM,I,8BCIL,c",
+  "names": Array [
+    "exports",
+  ],
+  "sourceRoot": "",
+  "sources": Array [
+    "webpack://inline-require-webpack-plugin/./src/__tests__/source-maps/bar.js",
+    "webpack://inline-require-webpack-plugin/./src/__tests__/source-maps/foo.js",
+  ],
+  "sourcesContent": Array [
+    "exports.BAR = '';
+",
+    "import { BAR } from './bar';
+
+function Foo() {
+  // Expected inline import:
+  return BAR;
+}
+
+export default Foo;
+",
+  ],
+  "version": 3,
+}
 `;
 
 exports[`InlineRequirePlugin with webpack v5.24.0 should inline commonjs modules imports at call site 1`] = `
