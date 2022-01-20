@@ -1,6 +1,4 @@
-/* eslint-disable class-methods-use-this */
-
-import type { Compiler, Module } from 'webpack';
+import type { Compiler } from 'webpack';
 import webpack from 'webpack';
 import { RawSource, SourceMapSource, Source } from 'webpack-sources';
 
@@ -68,7 +66,7 @@ class InlineRequireWebpackPlugin {
     compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
       function collectSideEffects(modules: webpack.compilation.Module[]) {
         for (const m of modules) {
-          // @ts-ignore v5 only id getter
+          // @ts-expect-error v5 only id getter
           const id = compilation.chunkGraph ? compilation.chunkGraph.getModuleId(m) : m.id;
           if (id != null && !sideEffectFree.has(id) && 'libIdent' in m) {
             const ident: string = (m as any).libIdent({
@@ -142,11 +140,11 @@ class InlineRequireWebpackPlugin {
 
       // Webpack v5 hook (as optimizeChunkAssets is deprecated)
       if ('processAssets' in compilation.hooks) {
-        // @ts-ignore v5 only hook
+        // @ts-expect-error v5 only hook
         compilation.hooks.processAssets.tap(
           {
             name: PLUGIN_NAME,
-            // @ts-ignore v5 only const
+            // @ts-expect-error v5 only const
             stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_COUNT,
           },
           (assets: Record<string, Source>) => {

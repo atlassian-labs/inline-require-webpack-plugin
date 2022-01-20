@@ -1,7 +1,5 @@
 import path from 'path';
-import { readFile } from 'fs';
-import { promisify } from 'util';
-// @ts-ignore
+// @ts-expect-error Missing type declarations
 import validate from 'sourcemap-validator';
 
 import {

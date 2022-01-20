@@ -22,3 +22,7 @@ yalc.lock
 
 # OS hidden files
 .DS_Store
+
+# Integrations
+.atlassian
+.github

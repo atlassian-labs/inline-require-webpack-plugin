@@ -1,7 +1,7 @@
 {
   "name": "inline-require-webpack-plugin",
   "version": "0.0.1",
-  "description": "Webpack plugin for inlining ESM imports, like commonjs allows",
+  "description": "Optimise generated bundles by inline requiring ES modules, without CommonJS deoptimisations",
   "keywords": [
     "Webpack",
     "Webpack plugin"
@@ -20,12 +20,13 @@
   "homepage": "https://github.com/atlassian-labs/inline-require-webpack-plugin#readme",
   "scripts": {
     "test": "jest",
-    "type-check": "tsc --noEmit",
+    "types": "tsc --noEmit",
     "build": "rm -rf build && npm run build:types && npm run build:js",
     "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
     "build:js": "babel src --out-dir build --extensions \".ts,.tsx,.js\" --ignore src/__tests__",
-    "lint": "eslint --ext .ts,.tsx,.js src/",
-    "prepare": "npm run build"
+    "lint": "eslint src/",
+    "preversion": "npm run lint -s && npm run types -s && npm run test -s",
+    "prepack": "npm run preversion -s && npm run build -s"
   },
   "jest": {
     "modulePathIgnorePatterns": [
@@ -53,9 +54,9 @@
     "@types/rimraf": "^3.0.2",
     "@types/webpack": "^4.41.30",
     "@types/webpack-sources": "^1.4.4",
-    "@typescript-eslint/eslint-plugin": "^5.9.0",
-    "@typescript-eslint/parser": "^5.9.0",
-    "eslint": "^8.6.0",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "eslint": "^8.7.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^4.0.0",
