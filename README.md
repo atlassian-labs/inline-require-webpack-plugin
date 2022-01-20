@@ -12,9 +12,11 @@ This technique has been successfully leveraged by other bundlers ([eg FB Metro](
 It is an alternative to feeding Webpack with CommonJS modules and introducing a Babel plugin like `@babel/plugin-transform-modules-commonjs`.
 The main advantage is that Webpack is not aware of this optimisation while processing the source code, so all ESM benefits (eg treeshaking) and other plugins optimisations are not affected.
 
+Compatible with Webpack v4.41+ and v5.24+
+
 ## Usage
 
-After installing it from the package
+After installing it via
 
 ```
 npm i -D inline-require-webpack-plugin
@@ -93,11 +95,11 @@ npm run test
 
 ## Contributions
 
-Contributions to Webpack Deduplication Plugin are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Contributions to inline-require-webpack-plugin are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Thanks
 
-Big shotout to @shuhei for his [inline-requires-webpack-plugin](https://github.com/shuhei/inline-requires-webpack-plugin), which demostrated a similar plugin was somewhat possible.
+Big shout-out to @shuhei for his [inline-requires-webpack-plugin](https://github.com/shuhei/inline-requires-webpack-plugin), which demonstrated a similar plugin was possible.
 
 ## License
 
