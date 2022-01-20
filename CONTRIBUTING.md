@@ -1,6 +1,6 @@
-# Contributing to Webpack Deduplication Plugin
+# Contributing to inline-require-webpack-plugin
 
-Thank you for considering a contribution to Webpack Deduplication Plugin! Pull requests, issues and comments are welcome. For pull requests, please:
+Thank you for considering a contribution to inline-require-webpack-plugin! Pull requests, issues and comments are welcome. For pull requests, please:
 
 * Add tests for new features and bug fixes
 * Follow the existing style
