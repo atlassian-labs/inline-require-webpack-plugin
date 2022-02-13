@@ -1,20 +1,24 @@
+import crypto from 'crypto';
 import webpack from 'webpack';
-import { RawSource, SourceMapSource, Source } from 'webpack-sources';
+import { RawSource, SourceMapSource, Source, SourceAndMapResult } from 'webpack-sources';
 import { processSource } from './processor';
 import type { SideEffectFree } from './types';
 
 const PLUGIN_NAME = 'InlineRequireWebpackPlugin';
 
 const excludeNull = Boolean as unknown as <T>(x: T | null) => x is T;
+const md5 = (s: string) => crypto.createHash('md5').update(s, 'utf8').digest('hex');
 
 export interface InlineRequireWebpackPluginOptions {
   sourceMap?: boolean;
+  cache?: boolean;
 }
 
 class InlineRequireWebpackPlugin {
   private readonly options: InlineRequireWebpackPluginOptions;
 
   private readonly sideEffectFree: SideEffectFree = new Map();
+  private readonly processedCache = new Map<string, { hash: string; source: string }>();
 
   constructor(options: Partial<InlineRequireWebpackPluginOptions> = {}) {
     this.options = { ...options };
@@ -46,12 +50,35 @@ class InlineRequireWebpackPlugin {
     }
   }
 
+  retrieveCachedOrProcess(
+    file: string,
+    original: SourceAndMapResult,
+    useCache: boolean
+  ): SourceAndMapResult {
+    const originalHash = useCache ? md5(original.source) : null;
+
+    const cached = this.processedCache.get(file);
+    let resultSource = cached?.hash === originalHash ? cached.source : null;
+
+    if (resultSource == null) {
+      resultSource = processSource(file, original, this.sideEffectFree);
+
+      if (useCache && originalHash != null) {
+        this.processedCache.set(file, { hash: originalHash, source: resultSource });
+      }
+    }
+
+    return { source: resultSource, map: original.map };
+  }
+
   async processFiles(
     compiler: webpack.Compiler,
     compilation: webpack.compilation.Compilation,
     chunkFiles: string[]
   ) {
     const sourceMap = this.options.sourceMap ?? !!compiler.options.devtool;
+    // @ts-expect-error watchMode type missing
+    const useCache = this.options.cache ?? !!compiler.watchMode;
 
     const chunkAssets: string[] = Array.from(compilation.additionalChunkAssets || []);
     const files = [...chunkFiles, ...chunkAssets];
@@ -70,7 +97,7 @@ class InlineRequireWebpackPlugin {
               map: sourceMap && typeof asset.map === 'function' ? asset.map() : null,
             };
 
-      const result = processSource(file, original, this.sideEffectFree);
+      const result = this.retrieveCachedOrProcess(file, original, useCache);
 
       return {
         file,
