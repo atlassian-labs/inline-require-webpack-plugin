@@ -40,42 +40,47 @@ export function processSource(
   original: SourceAndMapResult,
   sideEffectFree: SideEffectFree
 ): string {
-  const src = original.source
-    .split(webpackModuleHeader)
-    .map((v) => {
-      // Collect require variables
-      const requireVariables = collectRequires(v, sideEffectFree);
-      let output = v;
+  let startIdx = 0;
+  let src = '';
+  do {
+    const endIdx = original.source.indexOf(webpackModuleHeader, startIdx);
+    let srcSlice = original.source.slice(
+      startIdx,
+      endIdx > 0 ? endIdx + webpackModuleHeader.length : undefined
+    );
 
-      // Replace variable names.
-      for (const [
-        variableName,
-        { requireExpression, isSideEffectFree },
-      ] of requireVariables.entries()) {
-        // eslint-disable-next-line no-continue
-        if (!isSideEffectFree) continue;
+    // Collect require variables
+    const requireVariables = collectRequires(srcSlice, sideEffectFree);
 
-        // strip top level var declarations
-        const declarationlessOutput = output.replace(
-          new RegExp(`var ${variableName}[^\\w]([^;]+);`),
-          (m, p0) => `// (inlined) ${(p0.match(/"([^"]+)/) || [])[1]}`
-        );
+    // Replace variable names.
+    for (const [
+      variableName,
+      { requireExpression, isSideEffectFree },
+    ] of requireVariables.entries()) {
+      // eslint-disable-next-line no-continue
+      if (!isSideEffectFree) continue;
 
-        // replace inline variable references with require expression
-        const reflessOutput = declarationlessOutput.replace(
-          new RegExp(`([^\\w])${variableName}([^\\w])`, 'g'),
-          `$1(${requireExpression})$2`
-        );
+      // strip top level var declarations
+      const declarationlessOutput = srcSlice.replace(
+        new RegExp(`var ${variableName}[^\\w]([^;]+);`),
+        (m, p0) => `// (inlined) ${(p0.match(/"([^"]+)/) || [])[1]}`
+      );
 
-        if (reflessOutput !== declarationlessOutput) {
-          // import var is being used somewhere, confirm replacements
-          output = reflessOutput;
-        }
+      // replace inline variable references with require expression
+      const reflessOutput = declarationlessOutput.replace(
+        new RegExp(`([^\\w])${variableName}([^\\w])`, 'g'),
+        `$1(${requireExpression})$2`
+      );
+
+      if (reflessOutput !== declarationlessOutput) {
+        // import var is being used somewhere, confirm replacements
+        srcSlice = reflessOutput;
       }
+    }
 
-      return output;
-    })
-    .join(webpackModuleHeader);
+    src += srcSlice;
+    startIdx = endIdx > 0 ? endIdx + webpackModuleHeader.length : -1;
+  } while (startIdx !== -1);
 
   return src;
 }
