@@ -39,7 +39,7 @@ export function processSource(
   file: string,
   original: SourceAndMapResult,
   sideEffectFree: SideEffectFree
-): SourceAndMapResult {
+): string {
   const src = original.source
     .split(webpackModuleHeader)
     .map((v) => {
@@ -77,5 +77,5 @@ export function processSource(
     })
     .join(webpackModuleHeader);
 
-  return { source: src, map: original.map };
+  return src;
 }
