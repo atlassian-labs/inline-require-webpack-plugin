@@ -37,7 +37,9 @@
     ],
     "testRegex": "((\\.|/)(test|spec))\\.[jt]sx?$"
   },
-  "dependencies": {},
+  "dependencies": {
+    "farmhash": "^3.2.2"
+  },
   "peerDependencies": {
     "webpack": "^4.41.1 || ^5.24.0",
     "webpack-sources": "^1.4.3 || ^2.0.0 || ^3.0.0"

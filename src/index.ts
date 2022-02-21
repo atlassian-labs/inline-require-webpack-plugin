@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { hash32 } from 'farmhash';
 import webpack from 'webpack';
 import { RawSource, SourceMapSource, Source, SourceAndMapResult } from 'webpack-sources';
 import { processSource } from './processor';
@@ -7,7 +7,7 @@ import type { SideEffectFree } from './types';
 const PLUGIN_NAME = 'InlineRequireWebpackPlugin';
 
 const excludeNull = Boolean as unknown as <T>(x: T | null) => x is T;
-const md5 = (s: string) => crypto.createHash('md5').update(s, 'utf8').digest('hex');
+const toHash = (s: string) => hash32(s);
 
 export interface InlineRequireWebpackPluginOptions {
   sourceMap?: boolean;
@@ -56,7 +56,7 @@ class InlineRequireWebpackPlugin {
     original: SourceAndMapResult,
     useCache: boolean
   ): SourceAndMapResult {
-    const originalHash = useCache ? md5(original.source) : null;
+    const originalHash = useCache ? toHash(original.source) : null;
 
     const cached = this.processedCache.get(file);
     let resultSource = cached?.hash === originalHash ? cached.source : null;
