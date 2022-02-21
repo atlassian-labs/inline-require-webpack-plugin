@@ -19,6 +19,7 @@ class InlineRequireWebpackPlugin {
 
   private readonly sideEffectFree: SideEffectFree = new Map();
   private readonly processedCache = new Map<string, { hash: string; source: string }>();
+  private readonly chunkHashes = new Map<string | number, string>();
 
   constructor(options: Partial<InlineRequireWebpackPluginOptions> = {}) {
     this.options = { ...options };
@@ -137,10 +138,23 @@ class InlineRequireWebpackPlugin {
       } else {
         // Webpack v4 hook
         compilation.hooks.optimizeChunkAssets.tapPromise(PLUGIN_NAME, (chunks) => {
-          const chunkFiles = Array.from(chunks).reduce(
-            (acc, chunk) => acc.concat(Array.from(chunk.files || [])),
-            [] as string[]
-          );
+          const chunkFiles = Array.from(chunks)
+            .filter((chunk) => {
+              const chunkIdent = chunk.name || chunk.id;
+              const chunkHash = chunk.hash;
+              // if chunk does not have id or name, or no hash we have to treat its entirety
+              if (!chunkIdent || !chunkHash) {
+                return true;
+              }
+
+              if (!this.chunkHashes.has(chunkIdent)) {
+                this.chunkHashes.set(chunkIdent, chunkHash);
+                return true;
+              }
+
+              return this.chunkHashes.get(chunkIdent) !== chunkHash;
+            })
+            .reduce((acc, chunk) => acc.concat(Array.from(chunk.files || [])), [] as string[]);
           return this.processFiles(compiler, compilation, chunkFiles);
         });
       }
