@@ -33,6 +33,10 @@ function runCommand(command: string, args: string[]) {
   });
 }
 
+export async function buildSources() {
+  await runCommand('npm', ['run', 'build:js']);
+}
+
 async function removeBuildDir(fixturePath: string) {
   const buildDir = path.join(fixturePath, 'build');
   if (fs.existsSync(buildDir)) {

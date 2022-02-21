@@ -1,1 +1,1 @@
-export type SideEffectFree = Map<string | number, boolean>;
+export type SideEffectFree = Record<string | number, boolean>;

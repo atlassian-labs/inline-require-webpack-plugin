@@ -1,6 +1,6 @@
 const baseConfig = require('../__utils__/webpack.config')(__dirname);
 
-const { InlineRequireWebpackPlugin } = require('../..');
+const { InlineRequireWebpackPlugin } = require('../../../build');
 
 module.exports = {
   ...baseConfig,
