@@ -8,7 +8,7 @@ const importPattern =
 function checkSideEffectFree(sideEffectFree: SideEffectFree, requireExpression: string) {
   // check if module has sideEffects false
   const [, importedModule] = requireExpression.match(/["']([^"']+)["']/) || [];
-  return sideEffectFree.get(importedModule) || false;
+  return sideEffectFree[importedModule] || false;
 }
 
 function collectRequires(src: string, sideEffectFree: SideEffectFree) {

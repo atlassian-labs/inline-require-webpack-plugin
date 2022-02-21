@@ -37,7 +37,10 @@
     ],
     "testRegex": "((\\.|/)(test|spec))\\.[jt]sx?$"
   },
-  "dependencies": {},
+  "dependencies": {
+    "throat": "^6.0.1",
+    "workerpool": "^6.2.0"
+  },
   "peerDependencies": {
     "webpack": "^4.41.1 || ^5.24.0",
     "webpack-sources": "^1.4.3 || ^2.0.0 || ^3.0.0"
@@ -54,6 +57,7 @@
     "@types/rimraf": "^3.0.2",
     "@types/webpack": "^4.41.30",
     "@types/webpack-sources": "^1.4.4",
+    "@types/workerpool": "^6.1.0",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "eslint": "^8.7.0",

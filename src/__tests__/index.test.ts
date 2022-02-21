@@ -7,6 +7,7 @@ import {
   getModuleOutput,
   teardownWebpackVersion,
   setupWebpackVersion,
+  buildSources,
 } from './__utils__';
 
 // Since webpack build can take longer than the default jest wait time
@@ -15,6 +16,7 @@ jest.setTimeout(300000);
 describe('InlineRequirePlugin', () => {
   describe.each(['4.44.1', '5.24.0'])('with webpack v%s', (version) => {
     beforeAll(async () => {
+      await buildSources();
       await setupWebpackVersion(version);
     });
 
