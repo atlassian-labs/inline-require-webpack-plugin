@@ -11,7 +11,7 @@ function checkSideEffectFree(sideEffectFree: SideEffectFree, requireExpression: 
 
 function collectRequires(src: string, sideEffectFree: SideEffectFree) {
   // Collect require variables
-  const requireVariables = new Map();
+  const requireVariables = new Map<string, string>();
 
   const matches = src.matchAll(importPattern);
   for (const match of matches) {
