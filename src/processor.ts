@@ -11,7 +11,7 @@ function checkSideEffectFree(sideEffectFree: SideEffectFree, requireExpression: 
 
 function collectRequires(src: string, sideEffectFree: SideEffectFree) {
   // Collect require variables
-  const requireVariables = new Map();
+  const requireVariables = new Map<string, string>();
 
   const matches = src.matchAll(importPattern);
   for (const match of matches) {
@@ -21,7 +21,7 @@ function collectRequires(src: string, sideEffectFree: SideEffectFree) {
     // if referencing another require var, inline it
     requireExpression = requireExpression.replace(
       /\w+_WEBPACK_[A-Z]+_MODULE_\w+/,
-      (s) => (requireVariables.get(s) && requireVariables.get(s).requireExpression) || s
+      (s) => requireVariables.get(s) || s
     );
 
     if (!checkSideEffectFree(sideEffectFree, requireExpression)) {
