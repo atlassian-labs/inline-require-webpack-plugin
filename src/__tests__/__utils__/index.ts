@@ -41,6 +41,11 @@ async function removeBuildDir(fixturePath: string) {
 }
 
 export async function teardownWebpackVersion() {
+  await runCommand('mv', [
+    './node_modules/webpack-sources-BAK',
+    './node_modules/webpack-sources',
+    '2>/dev/null || true',
+  ]);
   await runCommand('rm', ['-rf', './node_modules/webpack']);
 }
 
@@ -52,6 +57,14 @@ export async function setupWebpackVersion(version: string) {
   await runCommand('cp', [
     '-r',
     `./node_modules/webpack-v${version.split('.')[0]} ./node_modules/webpack`,
+  ]);
+
+  // pull out specific webpack-sources for test
+  await runCommand('mv', ['./node_modules/webpack-sources', './node_modules/webpack-sources-BAK']);
+  await runCommand('cp', [
+    '-r',
+    `./node_modules/webpack-v${version.split('.')[0]}/node_modules/webpack-sources`,
+    './node_modules/webpack-sources',
   ]);
 
   // apply specific webpack version patch
