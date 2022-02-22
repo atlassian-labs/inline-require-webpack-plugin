@@ -21,7 +21,7 @@ function collectRequires(src: string, sideEffectFree: SideEffectFree) {
     // if referencing another require var, inline it
     requireExpression = requireExpression.replace(
       /\w+_WEBPACK_[A-Z]+_MODULE_\w+/,
-      (s) => (requireVariables.get(s) && requireVariables.get(s).requireExpression) || s
+      (s) => requireVariables.get(s) || s
     );
 
     if (!checkSideEffectFree(sideEffectFree, requireExpression)) {
