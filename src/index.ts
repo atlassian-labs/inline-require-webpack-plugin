@@ -1,7 +1,9 @@
 import webpack from 'webpack';
 import { RawSource, SourceMapSource } from 'webpack-sources';
 import { processSource } from './processor';
-import type { SideEffectFree } from './types';
+import LRUCache from 'lru-cache';
+
+import type { SideEffectFree, ProcessedSource } from './types';
 
 const PLUGIN_NAME = 'InlineRequireWebpackPlugin';
 
@@ -12,11 +14,38 @@ export interface InlineRequireWebpackPluginOptions {
 
 class InlineRequireWebpackPlugin {
   private readonly options: InlineRequireWebpackPluginOptions;
+  private readonly cache: LRUCache<string, ProcessedSource>;
 
   private readonly sideEffectFree: SideEffectFree = new Map();
 
   constructor(options: Partial<InlineRequireWebpackPluginOptions> = {}) {
     this.options = { ...options };
+    this.cache = new LRUCache({
+      max: 10000,
+      ttl: 1000 * 60 * 5,
+    });
+  }
+
+  getCachedSource(
+    moduleHash: string | undefined,
+    source: string,
+    sideEffectFree: SideEffectFree
+  ): ProcessedSource {
+    const shouldUseCache = this.options.cache && moduleHash;
+    let cacheKey = null;
+    if (shouldUseCache) {
+      cacheKey = moduleHash + Object.entries(sideEffectFree).join('');
+      const cachedSource = this.cache.get(cacheKey);
+      if (cachedSource) {
+        return cachedSource;
+      }
+    }
+
+    const newSource = processSource(source, sideEffectFree);
+    if (shouldUseCache && cacheKey) {
+      this.cache.set(cacheKey, newSource);
+    }
+    return newSource;
   }
 
   collectSideEffects(
@@ -64,7 +93,8 @@ class InlineRequireWebpackPlugin {
                   map:
                     sourceMap && typeof moduleSource.map === 'function' ? moduleSource.map() : null,
                 };
-          const newSource = processSource(original.source, this.sideEffectFree);
+
+          const newSource = this.getCachedSource(module.hash, original.source, this.sideEffectFree);
           if (newSource === null) {
             return moduleSource;
           }

@@ -1,4 +1,4 @@
-import type { SideEffectFree } from './types';
+import type { ProcessedSource, SideEffectFree } from './types';
 
 const importPattern =
   /var (\w+_WEBPACK_[A-Z]+_MODULE_\w+) = ([/*#\w]*)(__webpack_require__[^;,]+);/g;
@@ -11,7 +11,7 @@ function checkSideEffectFree(sideEffectFree: SideEffectFree, requireExpression: 
 
 function collectRequires(src: string, sideEffectFree: SideEffectFree) {
   // Collect require variables
-  const requireVariables = new Map<string, string>();
+  const requireVariables = new Map<string, ProcessedSource>();
 
   const matches = src.matchAll(importPattern);
   for (const match of matches) {
@@ -33,11 +33,10 @@ function collectRequires(src: string, sideEffectFree: SideEffectFree) {
   return requireVariables;
 }
 
-type ProessedSource = null | string;
 export function processSource(
   originalSource: string,
   sideEffectFree: SideEffectFree
-): ProessedSource {
+): ProcessedSource {
   let newSource = originalSource;
   const requireVariables = collectRequires(originalSource, sideEffectFree);
 
