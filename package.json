@@ -37,7 +37,10 @@
     ],
     "testRegex": "((\\.|/)(test|spec))\\.[jt]sx?$"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/lru-cache": "^7.4.0",
+    "lru-cache": "^7.4.0"
+  },
   "peerDependencies": {
     "webpack": "^4.41.1 || ^5.24.0",
     "webpack-sources": "^1.4.3 || ^2.0.0 || ^3.0.0"
