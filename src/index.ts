@@ -21,24 +21,29 @@ class InlineRequireWebpackPlugin {
 
   collectSideEffects(
     compiler: webpack.Compiler,
-    compilation: webpack.compilation.Compilation,
-    modules: webpack.compilation.Module[]
+    compilation: webpack.Compilation,
+    modules: Iterable<webpack.Module>
   ) {
     for (const m of modules) {
-      // @ts-expect-error v5 only id getter
       const id = compilation.chunkGraph ? compilation.chunkGraph.getModuleId(m) : m.id;
       if (id != null && !this.sideEffectFree.has(id) && 'libIdent' in m) {
-        // @ts-expect-error libIdent missing in Module type
-        const ident: string = m.libIdent({
-          context: compiler.options.context,
+        const contextDir = compiler.options.context;
+        if (!contextDir) {
+          throw new Error('No base directory set');
+        }
+
+        const ident: null | string = m.libIdent({
+          context: contextDir,
         });
 
         // either the dependency has explicit sideEffect
         // or we assume only local js/ts modules being sideEffect free
         const isFree =
+          // @ts-expect-error sideEffectFree is not defined in object
           m.factoryMeta && m.factoryMeta.sideEffectFree != null
-            ? m.factoryMeta.sideEffectFree
-            : !ident.includes('node_modules') && /\.[jt]sx?$/.test(ident);
+            ? // @ts-expect-error sideEffectFree is not defined in object
+              m.factoryMeta.sideEffectFree
+            : ident != null && !ident.includes('node_modules') && /\.[jt]sx?$/.test(ident);
 
         this.sideEffectFree.set(id, isFree);
       }
@@ -54,7 +59,7 @@ class InlineRequireWebpackPlugin {
 
       compilation.moduleTemplates.javascript.hooks.package.tap(
         PLUGIN_NAME,
-        (moduleSource, module) => {
+        (moduleSource: any, module: webpack.Module) => {
           const sourceMap = this.options.sourceMap ?? !!compiler.options.devtool;
           const original =
             sourceMap && moduleSource.sourceAndMap
@@ -68,8 +73,12 @@ class InlineRequireWebpackPlugin {
           if (newSource === null) {
             return moduleSource;
           }
+          const moduleId = module.id;
+          if (moduleId == null) {
+            throw new Error('Module has no ID set');
+          }
           return original.map
-            ? new SourceMapSource(newSource, module.id, original.map, original.source, original.map)
+            ? new SourceMapSource(newSource, String(moduleId), original.map, original.source, original.map)
             : new RawSource(newSource);
         }
       );
